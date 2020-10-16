@@ -1,23 +1,34 @@
-import csv
-import re
 import sys
-import glob
-from werkzeug.utils import secure_filename
 import os
-from md_to_csv import md_to_csv
+from usfm_to_csv import usfm_to_csv
 
-inputdirectory = input ("please enter input directory path:")
-inputfileextensions = input ("please enter input file extentenstion:")
-output_file_type = input ("please enter output file type:")
-path = inputdirectory+"*."+inputfileextensions
-print (path)
-files = glob.glob(os.path.join(inputdirectory, "*."+inputfileextensions))
-files_md = glob.glob(os.path.join('files'))
-from md_to_csv import md_to_csv
+try:
 
-if inputfileextensions == "md" and output_file_type == "csv":
-    md_to_csv(files_md)
-    print ("file conversion is successful")
+    # if len(sys.argv) != 4:
+    #     raise ValueError('Please provide correct argumnets')
+
+    path = sys.argv[1]
     
-else:
-    print ("method is not allowed")
+    input_file = sys.argv[2]
+
+    out_put_file_type = sys.argv[3]
+    print('output file type ', out_put_file_type)
+
+
+    if os.path.exists(path):
+        print ("filename : " + path.split("/")[-1])
+        file_name = path.split("/")[-1]
+        if file_name == input_file:
+            file_extension = file_name.split(".")[-1]
+            if file_extension == "usfm" and out_put_file_type == "csv":
+                usfm_to_csv(input_file)
+                print ("file conversion is successful")
+                                
+            else:
+                print ("method not allowed, try again")
+        else:
+            print ("File type is not acceptable")
+    else:
+        ("file does not exist")
+except:
+    print (" arguments are not paased properly")
