@@ -4,20 +4,24 @@ import urllib.request
 from flask import Flask, request, redirect, jsonify,send_from_directory,url_for
 from werkzeug.utils import secure_filename
 from usfm_to_csv import usfm_to_csv
+from md_to_csv import md_to_csv
+from csv_to_usfm import csv_to_usfm
+# from html_to_csv import html_to_csv
 
-# ALLOWED_EXTENSIONS = set(['usfm', 'csv', 'md', 'docx', 'tsv', 'xlsx'])
-ALLOWED_EXTENSIONS = set(['usfm'])
+ALLOWED_EXTENSIONS = set(['usfm', 'csv', 'md', 'docx', 'tsv', 'xlsx','html'])
+# ALLOWED_EXTENSIONS = set(['usfm'])
 def allowed_file(filename):
 	return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 from flask import Flask, send_from_directory
 import os
 
-UPLOAD_FOLDER = '/home/savitha/Pictures/File_conversion/file-format-conversion/demo'
+UPLOAD_FOLDER = '/home/savitha/Music/Python_class/file-format-conversion/demo'
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 
-out_put_file_type = 'csv'
+out_put_csv = 'csv'
+out_put_usfm = 'usfm'
 
 app = Flask(__name__)
 app.secret_key = "secret key"
@@ -50,15 +54,36 @@ def upload_file():
 		resp.status_code = 400
 		return resp
 
-@app.route('/usfm-csv/<filename>',methods=['POST'])
-def usfm_csv(filename):
-    out_put_file_type = 'csv'
+@app.route('/file_conversion/<filename>',methods=['POST'])
+def file_conversion(filename):
+    # out_put_file_type = 'csv'
     file_extension = filename.split(".")[-1]
-    if file_extension == "usfm" and out_put_file_type == "csv":
+    if file_extension == "usfm" and out_put_csv == "csv":
         usfm_to_csv(filename)
         resp = jsonify({'message' : 'usfm to csv conversion is done'})
         resp.status_code = 201
         return resp
+    elif file_extension == "md" and out_put_csv == "csv":
+        md_to_csv(filename)
+        resp = jsonify({'message' : 'md to csv conversion is done'})
+        resp.status_code = 201
+        return resp
+    # elif file_extension == "html" and out_put_csv == "csv":
+    #     html_to_csv(filename)
+    #     resp = jsonify({'message' : 'html to csv conversion is done'})
+    #     resp.status_code = 201
+    #     return resp
+    
+    elif file_extension == "csv" and out_put_usfm == "usfm":
+        csv_to_usfm(filename)
+        resp = jsonify({'message' : 'md to csv conversion is done'})
+        resp.status_code = 201
+        return resp
+    
+    
+	# elif 
+    
+    
     else:
         resp = jsonify({'message' : 'method is not allowed'})
         resp.status_code = 400
