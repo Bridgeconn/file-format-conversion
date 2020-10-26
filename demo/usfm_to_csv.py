@@ -12,7 +12,8 @@ def usfm_to_csv(files):
         csv_file = file_name + '.csv'
         #print csv_file
         # open usfm file for reading
-        f = open ("1JN.usfm",'r')
+        # f = open ("1JN.usfm",'r')
+        f = open (files, 'r')
 
         # open csv file for writing
         outfile = open("1JN.CSV", 'w')
