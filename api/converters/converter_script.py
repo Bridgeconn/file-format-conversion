@@ -6,7 +6,7 @@ import errno
 import os
 import pathlib
 from bs4 import BeautifulSoup
-
+import openpyxl
 
 def usfm_to_csv(file):
 
@@ -282,3 +282,35 @@ def html_to_csv(file):
 # #Tested
 # t4 = html_to_csv("uploads/chapter1.html")
 # print (t4)
+
+def xlsx_to_txt(file):
+        # Open xlsx file
+        file_base_path, file_name = os.path.split(file)
+
+        file_root_path = pathlib.Path().absolute()
+        print(file_root_path)
+
+        root_path = str(file_root_path)+'/'+file
+        print(root_path)
+        target_file_path = root_path.split('.')[0] + '.txt'
+        wb = openpyxl.load_workbook(file)
+        sheet = wb.get_sheet_by_name('Sheet1')
+
+        f = open (root_path,'r')
+
+        # open txt file for writing
+        outfile = open(target_file_path, 'w')
+
+        # Access each element of a column row by row and write it to txt file
+        for row in range(1, sheet.max_row + 1):
+                name = sheet['C' + str(row)].value
+                outfile.write(name)
+                outfile.write("\n")
+
+        # Close the file and print result
+        outfile.close()
+        print ('Done.')
+
+#Tested
+t4 = xlsx_to_txt("uploads/example.xlsx")
+print (t4)
