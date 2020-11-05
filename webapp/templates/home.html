@@ -1,0 +1,38 @@
+{% extends "layout.html" %}
+{% block title %}Welcome to Bridge Engine!{% endblock %}
+
+{% block content %}
+	<div class="jumbotron">
+	  <h1>Welcome to Bridge Engine!</h1>
+	  <p></p>
+	  <p><a class="btn btn-primary btn-sm" href="https://docs.google.com/forms/d/e/1FAIpQLSdgYuue4mMocjntmW31BlRhhteFDx05ddj49IKPZgkuXyjkkQ/viewform" target="_blank" role="button">Write your feedback</a></p>
+      <!-- <div class="chart-css">
+      	<div id="piechart"></div>
+      </div> -->
+	</div>
+<div class="container">
+	<div class="row">
+    <div class="col-xs-12 col-md-12 margin_tag">
+    
+    </div>
+  </div>
+	
+</div>
+
+{% endblock content %}
+
+{% block html_head %}
+  <style>
+    .margin_tag {
+      margin-bottom: 5px;
+    }
+    .chart-css{
+    	width: 300px;
+	    float: right;
+	    margin: -141px -26px 0px 0px;
+    }
+
+  </style>
+ <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
+{% endblock %}

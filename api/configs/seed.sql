@@ -1,3 +1,6 @@
+DROP DATABASE IF EXISTS bridgeengine;
+CREATE DATABASE file_converter_data;
+
 CREATE TABLE users (
 	user_id BIGSERIAL PRIMARY KEY, 
 	public_id TEXT UNIQUE NOT NULL,

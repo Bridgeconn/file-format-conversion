@@ -1,0 +1,28 @@
+{% extends "layout.html" %}
+{% block title %}Draft View{% endblock %}
+{% block content %}
+<div class="content-section">
+	<h4>Draft comparison view</h4>
+	<div class="row">
+		<div class="col-lg-6">
+			{{source_lang.capitalize()}}<small id="passwordHelpBlock" class="form-text text-muted" style="float: right;">Translated words are highlighted in original text </small> 
+			<textarea name="editor1">{{ html_text }}</textarea>
+		</div>
+
+		<div class="col-lg-6">
+			{{target_lang.capitalize()}}
+			<textarea name="editor2">{{ draft_text }}</textarea>
+		</div>
+	</div>
+</div>
+{% endblock %}
+{% block scripts %}
+	<script>
+		CKEDITOR.replace( 'editor1',{readOnly: true, allowedContent: true});
+		CKEDITOR.replace( 'editor2');
+
+		setTimeout(function() {
+		  $('#messages').fadeOut('slow');
+		}, 2000);
+	</script>
+{% endblock scripts %}

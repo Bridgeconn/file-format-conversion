@@ -1,0 +1,58 @@
+{% extends "auth_base.html" %}
+{% block title %}Login Page{% endblock %}
+
+{% block content %}
+
+  <main class="auth auth-floated">
+    <!-- form -->
+    <form class="auth-form">
+      <div class="mb-4">
+        <div class="mb-3">
+          <img class="rounded" src="{{ url_for('static', filename='assets/apple-touch-icon.png')}}" alt="" height="72">
+        </div>
+        <h1 class="h3"> Bridge Engine </h1>
+      </div>
+      <p class="text-left mb-4"> Don't have a account? <a href="auth-signup.html">Create One</a>
+      </p><!-- .form-group -->
+      <div class="form-group mb-4">
+        <label class="d-block text-left" for="inputEmail">Email</label> <input type="text" id="inputEmail" class="form-control form-control-lg" required="" autofocus="">
+      </div><!-- /.form-group -->
+      <!-- .form-group -->
+      <div class="form-group mb-4">
+        <label class="d-block text-left" for="inputPassword">Password</label> <input type="password" id="inputPassword" class="form-control form-control-lg" required="">
+      </div><!-- /.form-group -->
+      <!-- .form-group -->
+      <div class="form-group mb-4">
+        <button class="btn btn-lg btn-primary btn-block" type="submit">Sign In</button>
+      </div><!-- /.form-group -->
+
+      <!-- recovery links -->
+      <p class="py-2">
+        <a href="#" class="link">Forgot Password?</a>
+      </p><!-- /recovery links -->
+      <!-- copyright -->
+      <p class="mb-0 px-3 text-muted text-center"> © 2020 All Rights Reserved. <a href="auth-signin-v2.html#">Bridge Connectivity Solutions</a>
+      </p>
+    </form><!-- /.auth-form -->
+    <!-- .auth-announcement -->
+
+    <div id="announcement" class="auth-announcement" style="background-image: url('static/assets/images/illustration/img-1.png');">
+      <div class="announcement-body">
+        <h2 class="announcement-title"> Translate documents with Automated Future </h2>
+      </div>
+    </div><!-- /.auth-announcement -->
+  </main><!-- /.auth -->
+{% endblock %}
+{% block scripts %}
+  <script>
+		$(document).on('theme:init', () =>
+      {
+        /* particlesJS.load(@dom-id, @path-json, @callback (optional)); */
+        particlesJS.load("announcement", "/static/assets/javascript/pages/particles.js");
+      });
+
+		setTimeout(function() {
+		  $('#messages').fadeOut('slow');
+		}, 2000);
+	</script>
+{% endblock scripts %}

@@ -41,7 +41,7 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 1024 * 1024 * 1024
 
 PREFIX = "/v1"
-# be_api_url = os.getenv("BE_API_URL", "http://localhost:9009/v1")
+be_api_url = os.getenv("", "localhost:8088")
 
 
 def token_required(f):
@@ -200,7 +200,8 @@ def reset_password():
 @app.route(PREFIX + "/login", methods=['POST'])
 def login():
     logger.info("---------------------- Login api ----------------------")
-    data = request.get_json()
+    data = request.get_json(True)
+    print(data)
     logger.info('Email : %s', data['email'])
     if not data or not data['email'] or not data['password']:
         logger.info('Could not verify : data not available')
@@ -342,7 +343,7 @@ def convert_file(current_user):
 
         cursor.execute("select file_id, file_path, file_name from files_data where user_id=%s and file_id=%s", (userId,fileId))
         selected_file = cursor.fetchone()
-        
+
         source_file_path = selected_file[1] + selected_file[2]
 
         target_file = usfm_to_csv(source_file_path)

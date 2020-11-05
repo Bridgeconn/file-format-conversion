@@ -1,0 +1,197 @@
+{% extends "layout.html" %}
+{% block title %}Signup Page{% endblock %}
+{% block content %}
+<div class="global-container">
+	<div class="card login-form">
+		<div class="card-body">
+			<h3 class="card-title text-center">Signup</h3>
+			<div class="card-text">
+				<!--
+				<div class="alert alert-danger alert-dismissible fade show" role="alert">Incorrect username or password.</div> -->
+				<form method="POST" action="/signup">
+					<!-- to error: add class "has-danger" -->
+					<div class="form-group">
+						<label for="firstName">First Name*</label>
+						<input type="text" class="form-control form-control-sm" name="firstName" id="firstName">
+						<span id="error_firstname" class="text-danger"></span>
+					</div>
+					
+					<div class="form-group">
+						<label for="lastName">last Name*</label>
+						<input type="text" class="form-control form-control-sm" name="lastName" id="lastName">
+						<span id="error_lastname" class="text-danger"></span>
+					</div>
+					
+					<div class="form-group">
+						<label for="email">Email address*</label>
+						<input type="email" class="form-control form-control-sm" name="email" id="email" required="true">
+						<span id="error_email" class="text-danger"></span>
+					</div>
+					
+					<div class="form-group">
+						<label for="password">Password*</label>
+						<input type="password" class="form-control form-control-sm" name="password" id="password" required="true">
+						<span id="error_password" class="text-danger"></span>
+					</div>
+					
+					<div class="form-group">
+						<label for="confirmpassword">Confirm Password*</label>
+						<input type="password" class="form-control form-control-sm" name="confirmpassword" id="confirmpassword" required="true">
+						<span id="error_confirmpassword" class="text-danger"></span>
+					</div>
+					
+					<button type="submit" id="submit" class="btn btn-primary btn-block">Sign in</button>
+					
+					<div class="sign-up">
+						Have an account? <a href="/login">login</a>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}
+{% block html_head %}
+	<style>
+	.global-container{
+		height:100%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		background-color: #f5f5f5;
+	}
+
+	form{
+		padding-top: 10px;
+		font-size: 14px;
+		margin-top: 30px;
+	}
+
+	.card-title{ font-weight:300; }
+
+	.btn{
+		font-size: 14px;
+		margin-top:20px;
+	}
+
+
+	.login-form{ 
+		width:330px;
+		margin:20px;
+	}
+
+	.sign-up{
+		text-align:center;
+		padding:20px 0 0;
+	}
+
+	.alert{
+		margin-bottom:-30px;
+		font-size: 13px;
+		margin-top:20px;
+	}
+	</style>
+
+{% endblock %}
+{% block scripts %}
+	<script>
+		function validateEmail(sEmail) {
+        var filter = /^((([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+(\.([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+)*)|((\x22)((((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(([\x01-\x08\x0b\x0c\x0e-\x1f\x7f]|\x21|[\x23-\x5b]|[\x5d-\x7e]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(\\([\x01-\x09\x0b\x0c\x0d-\x7f]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]))))*(((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(\x22)))@((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.?$/;
+        if (filter.test(sEmail)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+		 $("#email").focusout(function () {
+        var sEmail = $('#email').val();
+        if ($.trim(sEmail).length == 0) {
+            $(this).css("border-color", "#cd2d00");
+            $('#submit').attr('disabled', true);
+            $("#error_email").text("Please enter valid email address");
+        }
+        if (validateEmail(sEmail)) {
+            $(this).css("border-color", "#2eb82e");
+            $('#submit').attr('disabled', false);
+            $("#error_email").text("");;
+        } else {
+            $(this).css("border-color", "#cd2d00");
+            $('#submit').attr('disabled', true);
+            $("#error_email").text("Invalid email address");
+        }
+    });
+
+		$("#password").focusout(function () {
+      if ($(this).val() == '') {
+        $(this).css("border-color", "#cd2d00");
+        $('#submit').attr('disabled', true);
+        $("#error_password").text("* You have to enter your Password!");
+      } else {
+        $(this).css("border-color", "#2eb82e");
+        $('#submit').attr('disabled', false);
+        $("#error_password").text("");
+      }
+    });
+    $("#confirm").focusout(function () {
+      if ($("#confirm").val() !== $("#password").val()) {
+        $("#confirm").css("border-color", "#cd2d00");
+        $('#submit').attr('disabled', true);
+        $("#error_confirm").text("Passwords Do not match!");
+      } else {
+        $(this).css("border-color", "#2eb82e");
+        $('#submit').attr('disabled', false);
+        $("#error_confirm").text("");
+      }
+    });
+
+    $("#submit").click(function (e) {
+        if ($("#firstName").val() == '') {
+            $("#firstName").css("border-color", "#cd2d00");
+            $('#submit').attr('disabled', true);
+            $("#error_firstname").text("* You have to enter your first name!");
+            e.preventDefault();
+        }
+        if ($("#lastName").val() == '') {
+            $("#lastName").css("border-color", "#cd2d00");
+            $('#submit').attr('disabled', true);
+            $("#error_lastname").text("* You have to enter your Last name!");
+            e.preventDefault();
+        }
+        if ($("#email").val() == '') {
+            $("#email").css("border-color", "#FF0000");
+            $('#submit').attr('disabled', true);
+            $("#error_email").text("* You have to enter your Email  !");
+            e.preventDefault();
+        }
+        if ($("#password").val() == '') {
+            $("#password").css("border-color", "#cd2d00");
+            $('#submit').attr('disabled', true);
+            $("#error_password").text("Enter a Password");
+            e.preventDefault();
+        }
+        if ($("#confirmpassword").val() == '') {
+            $("#confirmpassword").css("border-color", "#cd2d00");
+            $('#submit').attr('disabled', true);
+            $("#error_confirmpassword").text("Confirm Password");
+            e.preventDefault();
+        }
+    
+        data = $('#password').val();
+        let len = data.length;
+        
+        if(len < 1) {
+            $("#error_password").text("Password cannot be blank");
+            e.preventDefault();
+        }
+        if(len < 6) {
+            $("#error_password").text("Password length must be six!");
+            e.preventDefault();
+        }
+         
+        if($('#password').val() != $('#confirmpassword').val()) {
+            $("#error_confirmpassword").text("Password and Confirm Password don't match");
+            e.preventDefault();
+        }
+    });
+	</script>
+{% endblock scripts %}
