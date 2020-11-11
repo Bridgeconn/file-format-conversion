@@ -7,6 +7,7 @@ import logging
 import requests
 import datetime
 import traceback
+from random import randint
 
 from functools import wraps
 from collections import defaultdict
@@ -41,7 +42,7 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 1024 * 1024 * 1024
 
 PREFIX = "/v1"
-# be_api_url = os.getenv("BE_API_URL", "http://localhost:9009/v1")
+be_api_url = os.getenv("", "localhost:8088")
 
 
 def token_required(f):
@@ -126,11 +127,12 @@ def new_registration(code):
     logger.info("User verified!")
     return jsonify({"message": "Account verified"}), 201
     # return redirect("http://%s/" % (be_ui_url))
+    
 
 
 @app.route(PREFIX + "/forgetpassword", methods=["POST"])
 def request_reset_password():
-    data = request.get_json()
+    data = request.get_json(True)
     email = data['email']
     logger.info("%s initiated password reset..", email)
     connection = get_db()
@@ -153,7 +155,7 @@ def request_reset_password():
 		Your temporary password is %s. Use this to create a new password at <a href="%s/resetpassword">link</a> . 
 
 		<br/><br/>Thanks,<br/>BCS File Conveter Web Service''' % \
-              (verification_code, be_ui_url)
+              (verification_code, be_api_url)
         payload = {
             "to": {email: ""},
             "from": ["bridgengine@gmail.com", "Bridge Engine"],
@@ -171,7 +173,7 @@ def request_reset_password():
 
 @app.route(PREFIX + "/resetpassword", methods=["POST"])
 def reset_password():
-    data = request.get_json()
+    data = request.get_json(True)
 
     temp_password = data['temporaryPassword']
     password = data['password']
@@ -200,7 +202,7 @@ def reset_password():
 @app.route(PREFIX + "/login", methods=['POST'])
 def login():
     logger.info("---------------------- Login api ----------------------")
-    data = request.get_json()
+    data = request.get_json(True)
     logger.info('Email : %s', data['email'])
     if not data or not data['email'] or not data['password']:
         logger.info('Could not verify : data not available')
@@ -338,7 +340,8 @@ def convert_file(current_user):
         userId = cursor.fetchone()
 
         fileId = request.form.get('file_id')
-        targetType = request.form.get('target_type')
+        targetType = request.form.get('targetType')
+        print (targetType)
 
         cursor.execute("select file_id, file_path, file_name from files_data where user_id=%s and file_id=%s", (userId,fileId))
         selected_file = cursor.fetchone()

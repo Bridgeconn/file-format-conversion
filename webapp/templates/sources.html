@@ -1,0 +1,206 @@
+{% extends "layout.html" %}
+{% block title %}Uploaded files{% endblock %}
+
+{% block html_head %}
+  <style>
+    .isDisabled {
+      pointer-events: none;
+      cursor: default;
+    }
+    .select2-container{
+      width: 100%!important;
+     }
+    .select2-search--dropdown .select2-search__field {
+      width: 98%;
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+<div class="content-section">
+ <div class="table-responsive">
+    <h2>Uploaded files</h2>
+    <table class="table table-bordered">
+      <thead class="thead-light">
+        <tr>
+          <th>#</th>
+          <th>FileName</th>
+          <th>FileType</th>
+          <th>Language</th>
+          <th>Domain</th>
+          <th colspan="2">Tokens / Translation <i style="margin-left: 10%;" class="fas fa-download"></i><i style="margin-left: 3%;" class="fas fa-upload"></i> <i style="margin-left: 3%;"class="fas fa-edit"></i></th>
+          <th>Draft</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for sr in sources %}
+        <tr>
+          <td>{{ sr[0] }}</td>
+          <td>{{ sr[1].split("/")[-1].split(".")[0] }}</td>
+          <td>{{ sr[1].split("/")[-1].split(".")[-1] }}</td>
+          <td>{{ sr[2] }}</td>
+          <td>{{ sr[3] }}</td>
+          <td id="token_download_td_{{sr[0]}}">
+            {% if sr[4] == True %}
+              <a class="" data-toggle="tooltip" data-placement="top" title='{{ "Select target language and click to download tokens"}}' href="#" id="token_download_{{sr[0]}}" target=""><i style="margin-left: 15%;" class="fas fa-download fa-lg"></i></a>
+            {% else %}
+              <i style="display: none; margin-bottom: 2px" id="generate_token_sinnner_{{sr[0]}}" class="fas fa-cog fa-spin fa-lg fa-fw"></i>
+              <a class="" data-toggle="tooltip" data-placement="top" title='{{ "Select target language and click to generate tokens" }}' href="#" id="token_generate_{{sr[0]}}" onclick="tokenGenerate(this)"><img src="{{ url_for('static', filename='img/icons8-left-click-30.png') }}"></a>
+            {% endif %}
+          </td>  
+          <td id="translation_{{sr[0]}}">
+            <div class="" style="float: left;" style="width: 80%;">
+              <select class="selectpicker" data-show-subtext="true" data-live-search="true" id="target_language_{{sr[0]}}" >
+                <option value="">Target lang</option>
+
+                {% for l in languages[sr[2]] %}
+                  <option id="tar_{{l['lang_code']}}" value="{{l['lang_id']}}" data-subtext="({{l['lang_code']}})">{{l['language_name']}}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div style="float: right;">
+              <a style="display: none;" data-toggle="tooltip" data-placement="top" title='{{ "Click to add translations online"}}' class="" href="#" id="translation_page_{{sr[0]}}" target="_blank"><i class="fas fa-edit fa-lg"></i></a>
+              <a href="#" data-toggle="tooltip" data-placement="top" title='{{ "Select target language and Click to uplaod tokens translation as csv"}}' id="upload_translation_{{sr[0]}}" target=""><i style="" class="fas fa-upload fa-lg"></i></a>
+            </div>
+          </td>
+          <td>
+            <a style="display: none;" data-toggle="tooltip" data-placement="top" title='{{ "Click to check generated draft online" }}' class="" href="#" id="draft_view_{{sr[0]}}" target="_blank"><i class="fas fa-book fa-lg"></i></a>
+          </td>
+          <td>
+            <button type="button" title='{{ "Delete this source file" }}' class="btn btn-danger btn-sm" data-toggle="modal" data-target="#delete_{{sr[0]}}"><i style="" class="fas fa-trash"></i></button>
+          </td> 
+        </tr>
+        <div class="modal fade" id="delete_{{sr[0]}}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Are you sure?</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                {{ sr[1].split("/")[-1]}} file will be delete...
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Cancel</button>
+                <a href="/delete_sources/{{sr[0]}}" class="btn btn-danger btn-sm">Delete</a>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    
+    
+  </div>
+</div>
+{% endblock content %}
+
+{% block scripts %}
+
+  <script>
+    $(function() {     
+     $('[data-toggle="tooltip"]').tooltip()
+     $(".selectpicker").select2({ width: 'element' });
+    });
+
+    $('select').on('change', function() {
+      let target_lang_id = this.value;
+      let target_lang = $(this).find('option:selected').text();
+      let selectBoxId = $(this).attr("id");
+
+
+      let targLang = $(this).find('option:selected').attr('id')
+      let tagLangArr = targLang.split("_");
+      let targLangCode = tagLangArr[tagLangArr.length-1];
+
+      let tdId = $("#"+selectBoxId).closest("td").prop("id");
+      let anchorId = $("#"+tdId).find("a").attr("id");
+
+      let sourceArr = anchorId.split("_");
+      let source_id = sourceArr[sourceArr.length-1];
+      if (target_lang_id == ""){
+        $("#"+anchorId).css("display","none");
+        $("#draft_view_"+source_id).css("display","none");
+      }else{
+        let translation_page_url = "/translation/"+source_id+"/"+target_lang_id;
+        $("#"+anchorId).attr("href", translation_page_url);
+        $("#"+anchorId).css("display","block");
+
+        let draft_view_page_url = "/draft_view/"+source_id+"/"+targLangCode;
+        $("#draft_view_"+source_id).attr("href", draft_view_page_url);
+        $("#draft_view_"+source_id).css("display","block");
+
+        let download_tokens_url = "/download_tokens/"+source_id+"/"+targLangCode;
+        $("#token_download_"+source_id).attr("href", download_tokens_url);
+        $("#token_download_"+source_id).removeClass("isDisabled");
+
+        let upload_translation_url = "/upload_translations/"+source_id+"/"+targLangCode;
+        $("#upload_translation_"+source_id).attr("href", upload_translation_url)
+
+        // let generate_tokens_url = "/generate_tokens/"+source_id+"/"+targLangCode;
+        // $("#token_generate_"+source_id).attr("href", generate_tokens_url);
+        $("#token_generate_"+source_id).removeClass("isDisabled");
+      }
+
+    });
+    function tokenGenerate(elem) {
+
+      let generateTokenId = $(elem).attr("id");
+      let idArr = generateTokenId.split('_');
+      let targetLanguageIdSelected = "target_language_"+idArr[2];
+
+      let sourceId =  idArr[2]
+
+      let tarLangId = $('#'+targetLanguageIdSelected).find(":selected").attr("id");
+      let tarLangArr = tarLangId.split('_');
+      let tarLang = tarLangArr[tarLangArr.length-1];
+      $("#generate_token_sinnner_"+sourceId).css("display", "block");
+      let session_token = "{{session["token"]}}"
+      $.ajax({
+        type: 'POST',
+        beforeSend: function(request) {
+          request.setRequestHeader('x-access-token', session_token);
+          request.setRequestHeader('Content-type', 'application/json');
+          request.setRequestHeader("Access-Control-Allow-Origin", "*");
+        },
+        url: "http://localhost:8009/v1/generate_tokens",
+        cache: false,
+        data: JSON.stringify({'source_id': sourceId,'target_lang': tarLang}),
+        success: function(data){
+
+          let myJSON = JSON.stringify(data);
+          console.log(myJSON);
+
+          $("#generate_token_sinnner_"+sourceId).css("display", "none");
+          $("#token_generate"+sourceId).css("display", "none");
+          link_html = '<a class="" data-toggle="tooltip" data-placement="top" title="Select target language and click to download tokens" href="#" id="token_download_'+sourceId+'" target=""><i style="margin-left: 15%;" class="fas fa-download fa-lg"></i></a>';
+
+          $("#token_download_td_"+sourceId).html(link_html);
+
+          let download_tokens_url = "/download_tokens/"+sourceId+"/"+tarLang;
+          $("#token_download_"+sourceId).attr("href", download_tokens_url);
+          
+        },
+        complete: function (data) {
+          // location.href = "/sources"
+        },
+        error: function(error){
+             console.log("Error:");
+             console.log(error);
+        }
+      });
+    }
+
+    // $(document).bind("contextmenu",function(e){
+    //   return false;
+    // });
+    setTimeout(function() {
+      $('#messages').fadeOut('slow');
+    }, 2000);
+  </script>
+{% endblock scripts %}

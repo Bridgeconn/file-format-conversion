@@ -1,0 +1,63 @@
+{% extends "layout.html" %}
+{% block title %}Source upload {% endblock %}
+{% block content %}
+<div class="content-section">
+  <form method="POST" action="/sources" enctype="multipart/form-data">
+      {{ form.hidden_tag() }}
+      <fieldset class="form-group">
+        <legend class="border-bottom mb-4">Upload Files for Translation</legend>
+        <div class="form-group">
+          {{ form.sourceLanguage.label(class="form-control-label") }} 
+          {% if form.sourceLanguage.errors %}
+            {{ form.sourceLanguage(class="form-control form-control-sm is-invalid") }}
+            <div class="invalid-feedback">
+              {% for error in form.sourceLanguage.errors %}
+                <span> {{error}} </span>
+              {% endfor %}
+            </div>
+          {% else %}
+            <select class="form-control" id="sourceLanguage" name="sourceLanguage">
+              <option value="" selected>Select Source Language</option>
+              <option value="hin">Hindi</option>
+              <option value="mal">Malayalam</option>
+            </select>
+            {# form.sourceLanguage(class="form-control form-control-md", placeholder="We support only [ hin, mal ] languages in our alpha release!") #}
+          {% endif %}
+        </div>
+
+        <div class="form-group">
+          {{ form.sourceDomain.label(class="form-control-label")}}
+          {% if form.sourceDomain.errors %}
+            {{ form.sourceDomain(class="form-control form-control-sm is-invalid") }}
+            <div class="invalid-feedback">
+              {% for error in form.sourceDomain.errors %}
+                <span> {{error}} </span>
+              {% endfor %}
+            </div>
+          {% else %}
+            {{ form.sourceDomain(class="form-control form-control-md", placeholder="[comics, news, stories, science...]") }}
+          {% endif %}
+        </div>
+        <div class="form-group">
+          {{ form.file.label(class="form-control-label") + " [docx]"}}
+          {% if form.file.errors %}
+            {{ form.file(class="form-control form-control-sm is-invalid") }}
+            <div class="invalid-feedback">
+              {% for error in form.file.errors %}
+                <span> {{error}} </span>
+              {% endfor %}
+            </div>
+          {% else %}
+            {{ form.file(class="form-control form-control-md") }}
+          {% endif %}
+        </div>
+        <!-- <div class="form-group">
+          <input type="file" name="file" autocomplete="off" required>
+        </div> -->
+      </fieldset>
+      <div class="form-group">
+        {{ form.submit(class="btn btn-outline-info") }}
+      </div>
+  </form>
+</div>
+{% endblock content %}
