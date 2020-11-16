@@ -13,10 +13,10 @@ def usfm_to_csv(file):
   file_base_path, file_name = os.path.split(file)
 
   file_root_path = pathlib.Path().absolute()
-  print(file_root_path)
+#   print(file_root_path)
 
   root_path = str(file_root_path)+'/'+file
-  print(root_path)
+#   print(root_path)
   target_file_path = root_path.split('.')[0] + '.csv'
 
 
@@ -28,6 +28,7 @@ def usfm_to_csv(file):
 
   # create the csv writer object
   csvwriter = csv.writer(outfile, delimiter ='\t')
+  print(csvwriter)
 
   # Writing to csv file
   prev_book = ""
@@ -82,15 +83,15 @@ def usfm_to_csv(file):
     prev_book = book
     prev_chapter = chapter
   
-  print(target_file_path)
+#   print(target_file_path)
   return target_file_path
 
   f.close()
   outfile.close()
 
-# Tested
-# t1 = usfm_to_csv("uploads/18199276-08aa-434d-805e-5edd871a5bd6/GEN.usfm")
-# print(t1)
+# # Tested
+# t1 = usfm_to_csv("uploads/1JN.usfm")
+# # print(t1)
 
 
 def csv_to_usfm(file):
@@ -146,10 +147,12 @@ def csv_to_usfm(file):
         prev_chapter = chapter
 
     # Close the files
-    f.truncate()
-    f.close()
-    f.close()
-    print ("Conversion from csv to usfm done !")
+#   print(target_file_path)
+  return target_file_path
+  f.truncate()
+  f.close()
+  f.close()
+  print ("Conversion from csv to usfm done !")
 
 
 #Tested
@@ -157,13 +160,14 @@ def csv_to_usfm(file):
 # print (t2)
 
 def md_to_csv(file):
+#   print (file)
   file_base_path, file_name = os.path.split(file)
 
   file_root_path = pathlib.Path().absolute()
-  print(file_root_path)
+#   print(file_root_path)
 
   root_path = str(file_root_path)+'/'+file
-  print(root_path)
+#   print(root_path)
   target_file_path = root_path.split('.')[0] + '.csv'
 
 
@@ -174,8 +178,11 @@ def md_to_csv(file):
   outfile = open(target_file_path, 'w')
   csv_file = 'outputcsv_file.csv'
   outfile = open(csv_file,'w')
-  csvwriter = csv.writer(outfile)
-  csvwriter.writerow([ "id" ,"keyword", "wordforms","strongs","definition", "translationhelp","seealso","ref","examples"])
+#   csvwriter = csv.writer(outfile)
+#   print (csvwriter)
+#   csvwriter = csv.writer(outfile, delimiter ='\t')
+  csvwriter = csv.DictWriter(outfile, fieldnames = [ "id" ,"keyword", "wordforms","strongs","definition", "translationhelp","seealso","ref","examples"],delimiter ='\t')
+  csvwriter.writeheader()
   idCount=0
   f = open (root_path,'r')
   d = f.readlines()
@@ -233,12 +240,13 @@ def md_to_csv(file):
                   examples = examples + d[examplesContentIndex]
           examplesContentIndex += 1
   csvwriter.writerow([idCount,wordforms,strongs,definition,translationhelp,seealso,ref,examples])
+  return target_file_path
   f.close()
   outfile.close()
 
 #Tested
-# t3 = md_to_csv("uploads/aaron.md")
-# print (t3)
+t3 = md_to_csv("uploads/aaron.md")
+print (t3)
 
 def html_to_csv(file):
   file_base_path, file_name = os.path.split(file)
@@ -264,7 +272,7 @@ def html_to_csv(file):
   csvwriter = csv.DictWriter(outfile, fieldnames = ["Chapter", "Verse", "Eng Word"], delimiter ='\t')
   csvwriter.writeheader()
   # create the csv writer object
-  csvwriter = csv.writer(outfile, delimiter ='\t')
+#   csvwriter = csv.writer(outfile, delimiter ='\t')
   print ("Parsing HTML file")
 
   for t in soup.find_all('div', id = re.compile("test_")):
@@ -277,6 +285,7 @@ def html_to_csv(file):
       csvwriter.writerow([chapter, verse, en])
 
   print ("Converted to CSV !")
+  return target_file_path
   outfile.close()
   
 # #Tested
@@ -309,6 +318,7 @@ def xlsx_to_txt(file):
 
         # Close the file and print result
         outfile.close()
+        return target_file_path
         print ('Done.')
 
 #Tested

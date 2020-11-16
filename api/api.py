@@ -19,7 +19,8 @@ from flask import Flask, request, session, redirect, jsonify, make_response, sen
 
 from configs.config import get_db, close_db, allowed_file
 
-from converters.converter_script import usfm_to_csv
+from converters.converter_script import * #usfm_to_csv, html_to_csv,md_to_csv,xlsx_to_txt,csv_to_usfm
+
 
 import pdb
 
@@ -340,29 +341,89 @@ def convert_file(current_user):
         userId = cursor.fetchone()
 
         fileId = request.form.get('file_id')
-        targetType = request.form.get('targetType')
+        targetType = request.form.get('target_type')
         print (targetType)
 
         cursor.execute("select file_id, file_path, file_name from files_data where user_id=%s and file_id=%s", (userId,fileId))
         selected_file = cursor.fetchone()
+        print(selected_file)
+        selected_file_name = selected_file[2]
+        print(selected_file_name)
+        file_extension = selected_file_name.split(".")[-1]
+        print(file_extension)
         
         source_file_path = selected_file[1] + selected_file[2]
+            
+        if file_extension == "usfm" and targetType == "csv":
+            target_file_csv = usfm_to_csv(source_file_path)
+            # print(target_file)
 
-        target_file = usfm_to_csv(source_file_path)
-        print(target_file)
+            target_file_path_1, file_name = os.path.split(target_file_csv)
 
-        target_file_path, file_name = os.path.split(target_file)
+            cursor.execute("UPDATE files_data SET target_file_name = %s, file_converted = %s WHERE file_id = %s AND user_id = %s",(file_name, True, fileId, userId))
+            connection.commit()
+            resp = jsonify({'message': 'File successfully converted'})
+            resp.status_code = 201
+            return resp
+            close_db()
+            
+            
+        elif file_extension == "csv" and targetType == "usfm":
+            target_file_usfm = csv_to_usfm(source_file_path)
+            # print(target_file)
 
-        cursor.execute("UPDATE files_data SET target_file_name = %s, file_converted = %s WHERE file_id = %s AND user_id = %s",(file_name, True, fileId, userId))
-        connection.commit()
+            target_file_path_2, file_name = os.path.split(target_file_usfm)
 
-        resp = jsonify({'message': 'File successfully converted'})
-        resp.status_code = 201
-        return resp
-        close_db()
+            cursor.execute("UPDATE files_data SET target_file_name = %s, file_converted = %s WHERE file_id = %s AND user_id = %s",(file_name, True, fileId, userId))
+            connection.commit()
+            resp = jsonify({'message': 'File successfully converted'})
+            resp.status_code = 201
+            return resp
+            # close_db()
+            
+        elif file_extension == "html" and targetType == "csv":
+            target_file_html_csv = html_to_csv(source_file_path)
+            # print(target_file)
 
+            target_file_path_3, file_name = os.path.split(target_file_html_csv)
 
+            cursor.execute("UPDATE files_data SET target_file_name = %s, file_converted = %s WHERE file_id = %s AND user_id = %s",(file_name, True, fileId, userId))
+            connection.commit()
+            resp = jsonify({'message': 'File successfully converted'})
+            resp.status_code = 201
+            return resp
+        
+        elif file_extension == "md" and targetType == "csv":
+            target_file_md_csv = md_to_csv(source_file_path)
+            # print(target_file)
 
+            target_file_path_4, file_name = os.path.split(target_file_md_csv)
+            cursor.execute("UPDATE files_data SET target_file_name = %s, file_converted = %s WHERE file_id = %s AND user_id = %s",(file_name, True, fileId, userId))
+            connection.commit()
+            resp = jsonify({'message': 'File successfully converted'})
+            resp.status_code = 201
+            return resp
+        
+        elif file_extension == "xlsx" and targetType == "txt":
+            target_file_xlsx_txt = xlsx_to_txt(source_file_path)
+            # print(target_file)
 
+            target_file_path_5, file_name = os.path.split(target_file_xlsx_txt)
+            cursor.execute("UPDATE files_data SET target_file_name = %s, file_converted = %s WHERE file_id = %s AND user_id = %s",(file_name, True, fileId, userId))
+            connection.commit()
+            # resp = jsonify({'message': 'File successfully converted'})
+            # resp.status_code = 201
+            # return resp
+            # close_db()
+            resp = jsonify({'message': 'File successfully converted'})
+            resp.status_code = 201
+            return resp
+            close_db()
+        
+        else:
+            resp = jsonify({'message': 'Method is not allowed'})
+            resp.status_code = 201
+            return resp
+        
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=8088)
