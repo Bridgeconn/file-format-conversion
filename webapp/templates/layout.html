@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{% block title %}A Translation Tool{% endblock %} -  File_Conversion</title>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet" />
+
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css" integrity="sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ" crossorigin="anonymous">
+
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='main.css') }}">
+    
+    {% block html_head %}
+    <style>
+      .navbar-dark .navbar-nav .nav-link {
+        color: rgb(255, 255, 255);
+      }
+
+      .pagination-page-info {
+        padding: .6em;
+        padding-left: 0;
+        width: 40em;
+        margin: .5em;
+        margin-left: 0;
+        font-size: 12px;
+      }
+      .pagination-page-info b {
+        color: black;
+        background: #6aa6ed;
+        padding-left: 2px;
+        padding: .1em .25em;
+        font-size: 150%;
+      }
+    </style>
+    {% endblock %}
+</head>
+<body>
+  <header>
+    <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-primary">
+      <a class="navbar-brand" href="/">File Conversion</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarCollapse">
+          <ul class="navbar-nav mr-auto">
+            {% if "token" in session %}
+              <!-- {% if session["role"] in ['super_admin', 'project_admin', 'translator'] %} -->
+                <li class="nav-item">
+                  <a class="nav-link" href="/source_upload">Source Upload</a>
+                </li>
+              {% endif %}
+            <li class="nav-item">
+              <a class="nav-link" href="/sources">Sources</a>
+            </li>
+            <!-- <li class="nav-item">
+              <a class="nav-link" href="/upload_translations" >Upload translation</a>
+            </li> -->
+          {% endif %}
+          </ul>
+
+        <ul class="nav navbar-nav navbar-right">
+          <div id="sign" style="display: flex;">
+            {% if "token" not in session %}
+            <li class="nav-item"><a class="nav-link" href="/signup"><i class="fas fa-sign-out-alt"></i> Sign Up</a></li>
+            <li class="nav-item"><a class="nav-link" href="/login"><i class="fas fa-sign-in-alt"></i> Login</a></li>
+            {% else %}
+             <li class="nav-item"><a class="nav-link"href="/logout" id="logout"><i class="fas fa-sign-out-alt"></i> Log Out</a></li>
+             {% endif %}
+          </div>
+          <!-- <div id="logout" style="display: none; float: right;">
+           
+          </div> -->
+        </ul>
+      </div>
+    </nav>
+  </header>
+  
+  <main role="main" class="container">
+    <div id="messages"> 
+      {% for category, msg in get_flashed_messages(with_categories=true) %} 
+        <p class="messages flash-{{ category }}">{{ msg }}</p>
+      {% endfor %} 
+    </div>
+
+    <div class="row">
+      <div class="col-md-12">
+        {% block content %}  {% endblock %}
+      </div>
+    </div>
+  </main>
+  <div id="footer" class="text-center">
+    {% block footer %}
+    &copy; Copyright 2020 by <a href="https://bridgeconn.com/">Bridge Connectivity</a> | New Delhi.
+    {% endblock %}
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.5.1.js" integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
+  <script src="https://cdn.ckeditor.com/4.14.0/standard/ckeditor.js"></script>
+  {% block scripts %}
+    <script>
+      $(document).bind("contextmenu",function(e){
+        return false;
+      });
+      setTimeout(function() {
+        $('#messages').fadeOut('slow');
+      }, 2000);
+    </script>
+  {% endblock scripts %}
+</body>
+</html>

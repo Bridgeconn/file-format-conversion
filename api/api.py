@@ -7,6 +7,7 @@ import logging
 import requests
 import datetime
 import traceback
+from random import randint
 
 from functools import wraps
 from collections import defaultdict
@@ -18,7 +19,7 @@ from flask import Flask, request, session, redirect, jsonify, make_response, sen
 
 from configs.config import get_db, close_db, allowed_file
 
-from converters.converter_script import usfm_to_csv
+from converters.converter_script import * #usfm_to_csv, html_to_csv,md_to_csv,xlsx_to_txt,csv_to_usfm
 
 import pdb
 
@@ -41,7 +42,7 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 1024 * 1024 * 1024
 
 PREFIX = "/v1"
-# be_api_url = os.getenv("BE_API_URL", "http://localhost:9009/v1")
+be_api_url = os.getenv("", "localhost:8088")
 
 
 def token_required(f):
@@ -126,11 +127,12 @@ def new_registration(code):
     logger.info("User verified!")
     return jsonify({"message": "Account verified"}), 201
     # return redirect("http://%s/" % (be_ui_url))
+    
 
 
 @app.route(PREFIX + "/forgetpassword", methods=["POST"])
 def request_reset_password():
-    data = request.get_json()
+    data = request.get_json(True)
     email = data['email']
     logger.info("%s initiated password reset..", email)
     connection = get_db()
@@ -153,7 +155,7 @@ def request_reset_password():
 		Your temporary password is %s. Use this to create a new password at <a href="%s/resetpassword">link</a> . 
 
 		<br/><br/>Thanks,<br/>BCS File Conveter Web Service''' % \
-              (verification_code, be_ui_url)
+              (verification_code, be_api_url)
         payload = {
             "to": {email: ""},
             "from": ["bridgengine@gmail.com", "Bridge Engine"],
@@ -171,7 +173,7 @@ def request_reset_password():
 
 @app.route(PREFIX + "/resetpassword", methods=["POST"])
 def reset_password():
-    data = request.get_json()
+    data = request.get_json(True)
 
     temp_password = data['temporaryPassword']
     password = data['password']
@@ -200,7 +202,7 @@ def reset_password():
 @app.route(PREFIX + "/login", methods=['POST'])
 def login():
     logger.info("---------------------- Login api ----------------------")
-    data = request.get_json()
+    data = request.get_json(True)
     logger.info('Email : %s', data['email'])
     if not data or not data['email'] or not data['password']:
         logger.info('Could not verify : data not available')
@@ -261,11 +263,10 @@ def fetch_file(current_user):
             resp.status_code = 500
             return resp
 
-
-@app.route(PREFIX + '/file_upload/', methods=['POST'])
-@app.route(PREFIX + '/file_upload', methods=['POST'])
+@app.route(PREFIX + '/source_upload/', methods=['POST'])
+@app.route(PREFIX + '/source_upload', methods=['POST'])
 @token_required
-def upload_file(current_user):
+def upload_file2(current_user):
     if request.method == 'POST':
         logger.info("---------------------- File upload api ----------------------")
         try:
@@ -303,20 +304,93 @@ def upload_file(current_user):
                 logger.info("File saved in directory : %s", source_directory)
 
                 sourceFilePath = source_directory
-
+                
                 cursor.execute(
                     "INSERT INTO files_data (file_path, file_name, target_type, user_id) VALUES (%s,%s,%s,%s);",
                     (sourceFilePath, sourceFileName, targetType, userId))
                 connection.commit()
                 logger.info("Saved source file content in db")
+                
+                
+                path = sourceFilePath +sourceFileName
+                 
+                if fileType == "usfm" and targetType == "csv":
+                    target_file_csv = usfm_to_csv(path)
+                    # print(target_file)
 
-                cursor.execute("select file_id, file_path from files_data WHERE user_id=%s ORDER BY file_id DESC LIMIT 1",(userId))
-                uploaded_file = cursor.fetchone()
+                    target_file_path_1, file_name = os.path.split(target_file_csv)
 
-                resp = jsonify({'message': 'File successfully uploaded', 'root_path':uploaded_file, 'file_name': sourceFileName})
-                resp.status_code = 201
-                return resp
-                close_db()
+                    cursor.execute("UPDATE files_data SET target_file_name = %s, file_converted = %s WHERE file_id = %s AND user_id = %s",(file_name, True, fileId, userId))
+                    connection.commit()
+                    resp = jsonify({'message': 'File successfully converted'})
+                    resp.status_code = 201
+                    return resp
+                    close_db()
+                    
+                    
+                elif fileType == "csv" and targetType == "usfm":
+                    target_file_usfm = csv_to_usfm(path)
+                    # print(target_file)
+
+                    target_file_path_2, file_name = os.path.split(target_file_usfm)
+
+                    cursor.execute("UPDATE files_data SET target_file_name = %s, file_converted = %s WHERE file_id = %s AND user_id = %s",(file_name, True, fileId, userId))
+                    connection.commit()
+                    resp = jsonify({'message': 'File successfully converted'})
+                    resp.status_code = 201
+                    return resp
+                    # close_db()
+                    
+                elif fileType == "html" and targetType == "csv":
+                    target_file_html_csv = html_to_csv(path)
+                    # print(target_file)
+
+                    target_file_path_3, file_name = os.path.split(target_file_html_csv)
+
+                    cursor.execute("UPDATE files_data SET target_file_name = %s, file_converted = %s WHERE file_id = %s AND user_id = %s",(file_name, True, fileId, userId))
+                    connection.commit()
+                    resp = jsonify({'message': 'File successfully converted'})
+                    resp.status_code = 201
+                    return resp
+                
+                elif fileType == "md" and targetType == "csv":
+                    target_file_md_csv = md_to_csv(path)
+                    # print(target_file)
+
+                    target_file_path_4, file_name = os.path.split(target_file_md_csv)
+                    cursor.execute("UPDATE files_data SET target_file_name = %s, file_converted = %s WHERE file_id = %s AND user_id = %s",(file_name, True, fileId, userId))
+                    connection.commit()
+                    resp = jsonify({'message': 'File successfully converted'})
+                    resp.status_code = 201
+                    return resp
+                
+                elif fileType == "xlsx" and targetType == "txt":
+                    target_file_xlsx_txt = xlsx_to_txt(path)
+                    # print(target_file)
+
+                    target_file_path_5, file_name = os.path.split(target_file_xlsx_txt)
+                    # cursor.execute("UPDATE files_data SET target_file_name = %s, file_converted = %s WHERE file_id = %s AND user_id = %s",(file_name, True, fileId, userId))
+                    # connection.commit()
+                    # resp = jsonify({'message': 'File successfully converted'})
+                    # resp.status_code = 201
+                    # return resp
+                    # close_db()
+                    resp = jsonify({'message': 'File successfully converted'})
+                    resp.status_code = 201
+                    return resp
+                    close_db()
+                
+                else:
+                    resp = jsonify({'message': 'Method is not allowed'})
+                    resp.status_code = 201
+                    return resp
+
+
+            # resp = jsonify({'message': 'File successfully converted', 'root_path':uploaded_file, 'file_name': sourceFileName})
+            resp = jsonify({'message': 'File successfully converted'})
+            resp.status_code = 201
+            return resp
+            close_db()
 
         except Exception as e:
             print(e)
@@ -325,40 +399,165 @@ def upload_file(current_user):
             resp.status_code = 500
             return resp
 
-@app.route(PREFIX + '/file_convert/', methods=['POST'])
-@app.route(PREFIX + '/file_convert', methods=['POST'])
+@app.route(PREFIX + '/file_upload/', methods=['POST'])
+@app.route(PREFIX + '/file_upload', methods=['POST'])
 @token_required
-def convert_file(current_user):
+def upload_file(current_user):
     if request.method == 'POST':
-        logger.info("---------------------- File converter api ----------------------")
+        logger.info("---------------------- File upload api ----------------------")
+        try:
+            if 'file' not in request.files:
+                resp = jsonify({'message': 'No file part in the request'})
+                resp.status_code = 400
+                logger.info("No file part in the request")
+                return resp
+            file = request.files['file']
+            if file.filename == '':
+                resp = jsonify({'message': 'No file selected for uploading'})
+                resp.status_code = 400
+                logger.info("No file selected for uploading")
+                return resp
+            if file and allowed_file(file.filename):
+                sourceFileName = secure_filename(file.filename)
+                targetType = request.form.get('targetType')
+                print (targetType)
+                
+                logger.info("Source file : %s", sourceFileName)
+
+                fileType = file.filename.split("/")[-1].split(".")[-1]
+
+                combineDir = UPLOAD_FOLDER + '/' + current_user[0] + '/'
+                source_directory = str(combineDir)
+                os.makedirs(os.path.join(source_directory), exist_ok=True)
+
+                connection = get_db()
+                cursor = connection.cursor()
+
+                cursor.execute("select user_id from users where public_id=%s", (current_user[0],))
+                userId = cursor.fetchone()
+                print (userId)
+
+
+                file.save(os.path.join(source_directory, sourceFileName))
+                logger.info("File saved in directory : %s", source_directory)
+
+                sourceFilePath = source_directory
+
+                cursor.execute(
+                    "INSERT INTO files_data (file_path, file_name, target_type, user_id) VALUES (%s,%s,%s,%s);",
+                    (sourceFilePath, sourceFileName, targetType, userId))
+                connection.commit()
+                logger.info("Saved source file content in db")
+                
+
+                cursor.execute("select file_id, file_path from files_data WHERE user_id=%s ORDER BY file_id DESC LIMIT 1",(userId))
+                uploaded_file = cursor.fetchone()
+                print (uploaded_file)
+                
+                fileId = uploaded_file [0]
+                print (fileId)
+
+                cursor.execute("select file_id, file_path, file_name from files_data where user_id=%s and file_id=%s", (userId,fileId))
+                selected_file = cursor.fetchone()
+                print (selected_file)
+                selected_file_name = selected_file[2]
+                print(selected_file_name)
+                file_extension = selected_file_name.split(".")[-1]
+                print(file_extension)
+                source_file_path = selected_file[1] + selected_file[2]
+                convert_file(file_extension,targetType,source_file_path,fileId,userId)
+                
+                # convert_file(fileID,targetType,userID)
+                resp = jsonify({'message': 'File converted successfully', 'root_path':uploaded_file, 'file_name': sourceFileName})
+                resp.status_code = 201
+                return resp
+                # close_db()
+
+
+        except Exception as e:
+            print(e)
+            logger.info("Exception source: %s", e)
+            resp = jsonify({'message': 'Server Error'})
+            resp.status_code = 500
+            return resp
+    
+# @app.route(PREFIX + '/file_convert/', methods=['POST'])
+# @app.route(PREFIX + '/file_convert', methods=['POST'])
+# @token_required
+def convert_file(file_extension,targetType,source_file_path,fileId,userId):
+        
+    if file_extension == "usfm" and targetType == "csv":
+        target_file_csv = usfm_to_csv(source_file_path)
+        # print(target_file)
+
+        target_file_path_1, file_name = os.path.split(target_file_csv)
         connection = get_db()
         cursor = connection.cursor()
 
-        cursor.execute("select user_id from users where public_id=%s", (current_user[0],))
-        userId = cursor.fetchone()
-
-        fileId = request.form.get('file_id')
-        targetType = request.form.get('target_type')
-
-        cursor.execute("select file_id, file_path, file_name from files_data where user_id=%s and file_id=%s", (userId,fileId))
-        selected_file = cursor.fetchone()
-        
-        source_file_path = selected_file[1] + selected_file[2]
-
-        target_file = usfm_to_csv(source_file_path)
-        print(target_file)
-
-        target_file_path, file_name = os.path.split(target_file)
-
         cursor.execute("UPDATE files_data SET target_file_name = %s, file_converted = %s WHERE file_id = %s AND user_id = %s",(file_name, True, fileId, userId))
         connection.commit()
-
         resp = jsonify({'message': 'File successfully converted'})
         resp.status_code = 201
         return resp
         close_db()
+        
+        
+    elif file_extension == "CSV" and targetType == "usfm":
+        target_file_usfm = csv_to_usfm(source_file_path)
+        # print(target_file)
 
+        target_file_path_2, file_name = os.path.split(target_file_usfm)
 
+        cursor.execute("UPDATE files_data SET target_file_name = %s, file_converted = %s WHERE file_id = %s AND user_id = %s",(file_name, True, fileId, userId))
+        connection.commit()
+        resp = jsonify({'message': 'File successfully converted'})
+        resp.status_code = 201
+        return resp
+        # close_db()
+        
+    elif file_extension == "html" and targetType == "csv":
+        target_file_html_csv = html_to_csv(source_file_path)
+        # print(target_file)
+
+        target_file_path_3, file_name = os.path.split(target_file_html_csv)
+
+        cursor.execute("UPDATE files_data SET target_file_name = %s, file_converted = %s WHERE file_id = %s AND user_id = %s",(file_name, True, fileId, userId))
+        connection.commit()
+        resp = jsonify({'message': 'File successfully converted'})
+        resp.status_code = 201
+        return resp
+    
+    elif file_extension == "md" and targetType == "csv":
+        target_file_md_csv = md_to_csv(source_file_path)
+        # print(target_file)
+
+        target_file_path_4, file_name = os.path.split(target_file_md_csv)
+        cursor.execute("UPDATE files_data SET target_file_name = %s, file_converted = %s WHERE file_id = %s AND user_id = %s",(file_name, True, fileId, userId))
+        connection.commit()
+        resp = jsonify({'message': 'File successfully converted'})
+        resp.status_code = 201
+        return resp
+    
+    elif file_extension == "xlsx" and targetType == "txt":
+        target_file_xlsx_txt = xlsx_to_txt(source_file_path)
+        # print(target_file)
+
+        target_file_path_5, file_name = os.path.split(target_file_xlsx_txt)
+        # cursor.execute("UPDATE files_data SET target_file_name = %s, file_converted = %s WHERE file_id = %s AND user_id = %s",(file_name, True, fileId, userId))
+        # connection.commit()
+        # resp = jsonify({'message': 'File successfully converted'})
+        # resp.status_code = 201
+        # return resp
+        # close_db()
+        resp = jsonify({'message': 'File successfully converted'})
+        resp.status_code = 201
+        return resp
+        close_db()
+    
+    else:
+        resp = jsonify({'message': 'Method is not allowed'})
+        resp.status_code = 201
+        return resp
 
 
 if __name__ == '__main__':

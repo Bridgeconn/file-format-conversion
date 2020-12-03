@@ -22,13 +22,13 @@ def config(filename='database.ini', section='postgresql'):
 def get_db():
 	# params = config()
 	# conn = psycopg2.connect(**params)
-	conn = psycopg2.connect("dbname=file_converter_data user=uday password=uday@123")
+	conn = psycopg2.connect("dbname=file_converter_data user=postgres password=password")
 	return conn
 
 def close_db():
 	# params = config()
 	# conn = psycopg2.connect(**params)
-	conn = psycopg2.connect("dbname=file_converter_data user=uday password=uday@123")
+	conn = psycopg2.connect("dbname=file_converter_data user=postgres password=password")
 	return conn.close()
 
 def validate_api(request):
@@ -36,7 +36,7 @@ def validate_api(request):
 	api_key = headers.get("X-Api-Key")
 	return api_key
 
-ALLOWED_SOURCE_EXTENSIONS = set(['csv', 'usfm'])
+ALLOWED_SOURCE_EXTENSIONS = set(['csv','usfm','md','xlsx','docx','html'])
 
 def allowed_file(filename):
 		return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_SOURCE_EXTENSIONS

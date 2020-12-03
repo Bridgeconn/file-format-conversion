@@ -1,0 +1,52 @@
+{% extends "layout.html" %}
+{% block title %}Source upload {% endblock %}
+{% block content %}
+<div class="content-section">
+  <form method="POST" action="/source_upload/" enctype="multipart/form-data">
+    <fieldset>
+      <legend>File Conversion Application</legend>
+      <p> Possible File Conversion are , usfm to csv, csv to usfm, xlsx to txt, md to csv and html to csv </p>
+      <br>
+      {{ form.file.label }}<br>
+      {{ form.file }}
+      <br>
+      <br>
+      {{ form.targetType.label }}<br>
+      {{ form.targetType }}
+      <br>
+      <br>
+      {{ form.submit }}
+    </fieldset>
+
+      <!-- {{ form.hidden_tag() }}
+      <fieldset class="form-group">
+        <legend class="border-bottom mb-4">Upload Files for File conversion</legend>
+        <div class="form-group">
+          {{ form.targetType.label(class="form-control-label") }} 
+          {% if form.targetType.errors %}
+            {{ form.targetType(class="form-control form-control-sm is-invalid") }}
+            <div class="invalid-feedback">
+              {% for error in form.targetType.errors %}
+                <span> {{error}} </span>
+              {% endfor %}
+            </div>
+          {% else %}
+            <select class="form-control" id="targetType" name="targetType">
+              <option value="" selected>Select Source Language</option>
+              <option value="csv">csv</option>
+              <option value="md">md</option>
+              <option value="xlsx">xlsx</option>
+              <option value="usfm">usfm</option>
+              <option value="csv">csv</option>
+              <option value="txt">txt</option>
+            </select>
+            {# form.sourceLanguage(class="form-control form-control-md", placeholder="We support only [ hin, mal ] languages in our alpha release!") #}
+          {% endif %}
+        </div>
+      </fieldset>
+      <div class="form-group">
+        {{ form.submit(class="btn btn-outline-info") }}
+      </div> -->
+  </form>
+</div>
+{% endblock content %}

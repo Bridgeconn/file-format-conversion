@@ -1,0 +1,25 @@
+{% extends "layout.html" %}
+{% block title %}Welcome to File Conversion Application !{% endblock %}
+
+{% block content %}
+	<div class="convert">
+		<form method="POST" action="/upload_file"></form>
+	  <h1>Welcome to File Conversion!</h1>
+	  <!-- <p>{{ "Your role is: " + session["role"] if session["role"]}}</p> -->
+	  <form>
+		<label for="file">InputFileType:</label> 
+		<input type="file" name="file" id="file">
+	</form>
+	<select name="targetType">
+        <option selected disabled>--Select Target File Type--</option>
+        <option>csv</option>
+        <option>usfm</option>
+        <option>md</option>
+		<option>docx</option>
+		<option>html</option>
+	</select>
+	<input type="submit" value="Convert">
+	</div>
+{% endblock %}
+
+['csv','usfm','md','xlsx','docx','html']

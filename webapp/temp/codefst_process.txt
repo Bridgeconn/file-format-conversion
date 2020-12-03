@@ -1,0 +1,37 @@
+-Migrations :----
+
+Enable-Migrations -ContextTypeName SchoolContext -MigrationsDirectory Migrations\NHL
+
+add-migration -ConfigurationTypeName SnehaSoftwareSolutionsSystemTest.Migrations.NHL.Configuration "InitialCreate"
+
+update-database -ConfigurationTypeName SnehaSoftwareSolutionsSystemTest.Migrations.NHL.Configuration
+
+
+Data floder :
+
+using SnehaSoftwareSolutionsSystemTest.Models.Nhl;
+using System;
+using System.Collections.Generic;
+using System.Data.Entity;
+using System.Linq;
+using System.Web;
+
+namespace SnehaSoftwareSolutionsSystemTest.Data
+{
+    public class SchoolContext : DbContext
+    {
+        
+
+        public SchoolContext() :base("DefaultConnection")
+        { }
+        public DbSet<subcategories> subcategories { get; set; }
+        public DbSet<categories> categories { get; set; }
+        public DbSet<Product> Product { get; set; }
+    }
+
+
+
+web confi:
+
+
+ <add name="DefaultConnection" connectionString="data source=DESKTOP-JU5PVF0\SQLEXPRESS;Initial Catalog= SnehaSoftwareDB;Integrated Security=True" providerName="System.Data.SqlClient" />
