@@ -209,8 +209,8 @@ def file_list():
 		files = requests.get(api_base_url+"/files", headers=headers)
 		file_data = files.json()
 		print(file_data)
-		# return file_data
-		return render_template('file_list.html' )
+		return file_data
+	
 
 @app.route('/source_upload/', methods=['GET', 'POST'])
 @app.route('/source_upload/', methods=['GET', 'POST'])
