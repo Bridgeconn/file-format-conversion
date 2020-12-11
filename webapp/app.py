@@ -16,7 +16,7 @@ from werkzeug.datastructures import ImmutableMultiDict
 from werkzeug.exceptions import HTTPException
 from werkzeug.utils import secure_filename
 
-from forms import SourceUploadForm
+from forms import SourceUploadForm, UploadFile
 
 if 'logs' not in os.listdir(os.getcwd() + '/'):
     os.mkdir(os.getcwd() + '/logs')
@@ -126,15 +126,15 @@ def login():
 		flash("Already logged in...")
 		return redirect(url_for('source_upload'))
 
-# @app.route('/index', methods=['GET'])
-# @app.route('/', methods=['GET'])
-# def index():
-# 	if not session.get("token") is None:
-# 		headers = {"x-access-token" : session["token"]}
-# 		return render_template('source_upload.html')
-# 		# return jsonify({"message": "Successfully loged In"}), 201
-# 	else:
-# 		return redirect(url_for("login")) 
+@app.route('/index', methods=['GET'])
+@app.route('/', methods=['GET'])
+def index():
+	if not session.get("token") is None:
+		headers = {"x-access-token" : session["token"]}
+		return render_template('login.html')
+		# return jsonify({"message": "Successfully loged In"}), 201
+	else:
+		return redirect(url_for("login")) 
 
 @app.route('/logout')
 def logout():
@@ -192,6 +192,25 @@ def resetpassword():
 		if resp.status_code == 201:
 			flash(res["message"])
 			return redirect(url_for('login'))
+
+@app.route('/file_upload/', methods=['GET', 'POST'])
+@app.route('/file_upload/', methods=['GET', 'POST'])
+def UploadFile():
+    form = UploadFile()
+    if request.method == 'GET':
+        return render_template('file_upload.html', form=form )
+
+
+@app.route('/file_list/', methods=['GET', 'POST'])
+@app.route('/file_list/', methods=['GET', 'POST'])
+def file_list():
+	if request.method == 'GET':
+		headers = {"x-access-token": session["token"]}
+		files = requests.get(api_base_url+"/files", headers=headers)
+		file_data = files.json()
+		print(file_data)
+		# return file_data
+		return render_template('file_list.html' )
 
 @app.route('/source_upload/', methods=['GET', 'POST'])
 @app.route('/source_upload/', methods=['GET', 'POST'])
